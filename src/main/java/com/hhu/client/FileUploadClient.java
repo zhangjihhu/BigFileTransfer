@@ -1,14 +1,14 @@
 package com.hhu.client;
 
 import com.hhu.client.handler.FileUploadClientHandler;
+import com.hhu.codec.PacketDecoder;
+import com.hhu.codec.PacketEncoder;
 import com.hhu.protocol.FilePacket;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 import java.io.File;
 
@@ -41,9 +41,12 @@ public class FileUploadClient {
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel channel) throws Exception {
-                        channel.pipeline().addLast(new ObjectEncoder());
-                        channel.pipeline().addLast(new ObjectDecoder(ClassResolvers.weakCachingConcurrentResolver(null)));
+
+                        channel.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 1, 4));
+                        channel.pipeline().addLast(new PacketEncoder());
+                        channel.pipeline().addLast(new PacketDecoder());
                         channel.pipeline().addLast(new FileUploadClientHandler(filePacket));
+
                     }
                 });
         ChannelFuture future = null;

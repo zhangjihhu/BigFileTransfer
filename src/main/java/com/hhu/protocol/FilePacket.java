@@ -9,7 +9,7 @@ import static com.hhu.protocol.command.Command.FILE;
 
 
 @Data
-public class FilePacket extends Packet implements Serializable {
+public class FilePacket extends Packet {
 
     private File file;
     private String file_md5;
