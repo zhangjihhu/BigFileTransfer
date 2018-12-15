@@ -2,15 +2,16 @@ package com.hhu.codec;
 
 import com.hhu.protocol.FilePacket;
 import com.hhu.protocol.Packet;
+import com.hhu.protocol.request.JoinClusterRequestPacket;
 import com.hhu.protocol.response.FileStartPacket;
+import com.hhu.protocol.response.JoinClusterResponsePacket;
 import com.hhu.serialize.Serializer;
 import io.netty.buffer.ByteBuf;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.hhu.protocol.command.Command.FILE;
-import static com.hhu.protocol.command.Command.FILE_START;
+import static com.hhu.protocol.command.Command.*;
 
 public class PacketCodec {
 
@@ -22,6 +23,8 @@ public class PacketCodec {
         packetTypeMap = new HashMap<>();
         packetTypeMap.put(FILE, FilePacket.class);
         packetTypeMap.put(FILE_START, FileStartPacket.class);
+        packetTypeMap.put(JOIN_CLUSTER_REQUEST, JoinClusterRequestPacket.class);
+        packetTypeMap.put(JOIN_CLUSTER_RESPONSE, JoinClusterResponsePacket.class);
     }
 
 

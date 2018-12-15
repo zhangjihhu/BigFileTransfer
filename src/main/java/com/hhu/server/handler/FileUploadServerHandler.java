@@ -4,7 +4,6 @@ import com.hhu.protocol.FilePacket;
 import com.hhu.protocol.response.FileStartPacket;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.io.File;
@@ -32,6 +31,7 @@ public class FileUploadServerHandler extends SimpleChannelInboundHandler<FilePac
         if (byteRead > 0) {
             FileStartPacket fileStartPacket = new FileStartPacket();
             fileStartPacket.setStart(start);
+            fileStartPacket.setFile(filePacket.getFile());
             ctx.channel().writeAndFlush(fileStartPacket);
         } else {
             randomAccessFile.close();

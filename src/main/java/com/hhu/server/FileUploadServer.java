@@ -3,10 +3,12 @@ package com.hhu.server;
 import com.hhu.codec.PacketDecoder;
 import com.hhu.codec.PacketEncoder;
 import com.hhu.server.handler.FileUploadServerHandler;
+import com.hhu.server.handler.JoinClusterRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
@@ -14,48 +16,45 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 
 public class FileUploadServer {
 
+    private static final int PORT = 8000;
+
     public static void main(String[] args) {
 
-        int port = 8080;
-        if (args != null && args.length > 0) {
-            port = Integer.valueOf(args[0]);
-        }
-
-        new FileUploadServer().bind(port);
-
-    }
-
-    public void bind(int port) {
         EventLoopGroup boosGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         ServerBootstrap bootstrap = new ServerBootstrap();
-
-        bootstrap.group(boosGroup, workerGroup)
+        bootstrap
+                .group(boosGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_BACKLOG, 124)
-                .childHandler(new ChannelInitializer<Channel>() {
-                    @Override
-                    protected void initChannel(Channel channel) throws Exception {
-
-                        channel.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 1, 4));
-                        channel.pipeline().addLast(new PacketEncoder());
-                        channel.pipeline().addLast(new PacketDecoder());
-                        channel.pipeline().addLast(new FileUploadServerHandler());
+                .option(ChannelOption.SO_BACKLOG, 1024)
+                .option(ChannelOption.SO_KEEPALIVE, true)
+                .option(ChannelOption.TCP_NODELAY, true)
+                .childHandler(new ChannelInitializer<NioSocketChannel>() {
+                    protected void initChannel(NioSocketChannel ch) {
+                        ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 1, 4));
+                        ch.pipeline().addLast(new PacketEncoder());
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new JoinClusterRequestHandler());
+                        ch.pipeline().addLast(new FileUploadServerHandler());
 
                     }
                 });
 
-        try {
-            ChannelFuture future = bootstrap.bind(port).sync();
-            future.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            boosGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-        }
+        bind(bootstrap, PORT);
 
+
+    }
+
+    private static void bind(ServerBootstrap serverBootstrap, final int port) {
+        serverBootstrap.bind(port).addListener(future -> {
+            if (future.isSuccess()) {
+                System.out.println("端口[" + port + "]绑定成功");
+            } else {
+                System.err.println("端口[" + port + "]绑定失败");
+                // bind(serverBootstrap, port + 1);
+            }
+        });
     }
 
 

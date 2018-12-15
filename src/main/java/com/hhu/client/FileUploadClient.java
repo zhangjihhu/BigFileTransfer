@@ -1,66 +1,95 @@
 package com.hhu.client;
 
+import com.hhu.client.console.ConsoleCommandManager;
+import com.hhu.client.console.JoinConsoleCommand;
 import com.hhu.client.handler.FileUploadClientHandler;
+import com.hhu.client.handler.JoinClusterResponseHandler;
 import com.hhu.codec.PacketDecoder;
 import com.hhu.codec.PacketEncoder;
-import com.hhu.protocol.FilePacket;
+import com.hhu.protocol.Packet;
+import com.hhu.util.SessionUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
-import java.io.File;
+import java.util.Date;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class FileUploadClient {
 
+    private static final String HOST = "127.0.0.1";
+    private static final int PORT = 8000;
+    private static final int MAX_RETRY = 5;
+
     public static void main(String[] args) {
-        int port = 8080;
-        if (args != null && args.length > 0) {
-            port = Integer.valueOf(args[0]);
-        }
-
-        FilePacket filePacket = new FilePacket();
-        File file = new File("C:\\Users\\zhangji\\Desktop\\data\\client\\a.txt");
-        String fileMd5 = file.getName();
-        filePacket.setFile(file);
-        filePacket.setFile_md5(fileMd5);
-        filePacket.setStartPos(0);
-        new FileUploadClient().connect("127.0.0.1", port, filePacket);
-
-
-
-    }
-
-    public void connect(String host, int port, final FilePacket filePacket) {
-        EventLoopGroup group = new NioEventLoopGroup();
 
         Bootstrap bootstrap = new Bootstrap();
-        bootstrap.group(group).channel(NioSocketChannel.class)
+
+        NioEventLoopGroup group = new NioEventLoopGroup();
+
+        bootstrap.group(group)
+                .channel(NioSocketChannel.class)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+                .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
-                .handler(new ChannelInitializer<Channel>() {
+                .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(Channel channel) throws Exception {
-
-                        channel.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 1, 4));
-                        channel.pipeline().addLast(new PacketEncoder());
-                        channel.pipeline().addLast(new PacketDecoder());
-                        channel.pipeline().addLast(new FileUploadClientHandler(filePacket));
-
+                    protected void initChannel(SocketChannel ch) {
+                        ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 1, 4));
+                        ch.pipeline().addLast(new PacketEncoder());
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new JoinClusterResponseHandler());
+                        ch.pipeline().addLast(new FileUploadClientHandler());
                     }
                 });
-        ChannelFuture future = null;
-        try {
-            future = bootstrap.connect(host, port).sync();
-            future.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            group.shutdownGracefully();
-        }
 
+        connect(bootstrap, HOST, PORT, MAX_RETRY);
 
     }
+
+    private static void connect(Bootstrap bootstrap, String host, int port, int retry) {
+        bootstrap.connect(host, port).addListener(future -> {
+            if (future.isSuccess()) {
+                System.out.println(new Date() + ": 连接成功，启动控制台线程……");
+                Channel channel = ((ChannelFuture) future).channel();
+                startConsoleThread(channel);
+            } else if (retry == 0) {
+                System.out.println("连接超时，放弃连接");
+            } else {
+                //第几次重连
+                int order = (MAX_RETRY - retry) + 1;
+                //本次重连的间隔
+                int delay = 1 << order;
+                System.out.println(new Date() + ":连接失败，第" + order + "次重连");
+                bootstrap.config().group().schedule(() -> connect(bootstrap, host, port, retry-1), delay, TimeUnit.SECONDS);
+            }
+        });
+    }
+
+    private static void startConsoleThread(Channel channel) {
+
+        ConsoleCommandManager consoleCommandManager = new ConsoleCommandManager();
+        JoinConsoleCommand joinConsoleCommand = new JoinConsoleCommand();
+        Scanner sc = new Scanner(System.in);
+
+        new Thread(() -> {
+            while (!Thread.interrupted()) {
+                if (!SessionUtil.hasLogin(channel)) {
+                    joinConsoleCommand.exec(sc, channel);
+                } else {
+                    System.out.println("请输入您的指令(sendFile):");
+                    consoleCommandManager.exec(sc, channel);
+                }
+            }
+        }).start();
+
+    }
+
+
 
 
 }
