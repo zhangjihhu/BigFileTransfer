@@ -14,7 +14,7 @@ public class FileUploadServerHandler extends SimpleChannelInboundHandler<FilePac
 
     private int byteRead;
     private volatile int start = 0;
-    private String file_dir = "C:\\Users\\zhangji\\Desktop\\data\\server";
+    private String file_dir = "F:\\Project\\java\\WordCount\\src\\main\\java\\com\\hhu\\server\\file";
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FilePacket filePacket) throws Exception {
@@ -27,7 +27,7 @@ public class FileUploadServerHandler extends SimpleChannelInboundHandler<FilePac
         RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
         randomAccessFile.seek(start);
         randomAccessFile.write(bytes);
-        start = start + byteRead;
+        start += byteRead;
         if (byteRead > 0) {
             FileStartPacket fileStartPacket = new FileStartPacket();
             fileStartPacket.setStart(start);

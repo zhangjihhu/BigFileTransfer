@@ -31,6 +31,7 @@ public class FileUploadServer {
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
+                    @Override
                     protected void initChannel(NioSocketChannel ch) {
                         ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 1, 4));
                         ch.pipeline().addLast(new PacketEncoder());

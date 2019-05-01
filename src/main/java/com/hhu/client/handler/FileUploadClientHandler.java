@@ -21,35 +21,6 @@ public class FileUploadClientHandler extends SimpleChannelInboundHandler<FileSta
         filePacket = new FilePacket();
     }
 
-    // public FileUploadClientHandler(FilePacket filePacket) {
-    //     if (filePacket.getFile().exists()) {
-    //         if (!filePacket.getFile().isFile()) {
-    //             System.out.println("Not a file:" + filePacket.getFile());
-    //         }
-    //     }
-    //     this.filePacket = filePacket;
-    // }
-
-
-    // @Override
-    // public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    //     randomAccessFile = new RandomAccessFile(filePacket.getFile(), "r");
-    //     randomAccessFile.seek(filePacket.getStartPos());
-    //     lastLength = (int) randomAccessFile.length() / 10;
-    //     // lastLength = 500;
-    //     byte[] bytes = new byte[lastLength];
-    //
-    //     if ((byteRead = randomAccessFile.read(bytes)) != -1) {
-    //         filePacket.setEndPos(byteRead);
-    //         filePacket.setBytes(bytes);
-    //         System.out.println("----------" + filePacket.getFile_md5());
-    //         ctx.writeAndFlush(filePacket);
-    //         System.out.println("---------- client had writeAndFlush");
-    //     } else {
-    //         System.out.println("文件已读完");
-    //     }
-    // }
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FileStartPacket fileStartPacket) throws Exception {
             start = fileStartPacket.getStart();

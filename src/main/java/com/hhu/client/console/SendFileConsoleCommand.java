@@ -1,9 +1,7 @@
 package com.hhu.client.console;
 
-import com.hhu.client.handler.FileUploadClientHandler;
 import com.hhu.protocol.FilePacket;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 
 import java.io.File;
 import java.io.RandomAccessFile;
@@ -51,8 +49,9 @@ public class SendFileConsoleCommand implements ConsoleCommand {
         randomAccessFile = new RandomAccessFile(filePacket.getFile(), "r");
         // randomAccessFile.seek(filePacket.getStartPos());
         randomAccessFile.seek(0);
-        lastLength = (int) randomAccessFile.length() / 10;
+        // lastLength = (int) randomAccessFile.length() / 10;
         // lastLength = 500;
+        lastLength= Integer.MAX_VALUE / 10;
         byte[] bytes = new byte[lastLength];
 
         if ((byteRead = randomAccessFile.read(bytes)) != -1) {
