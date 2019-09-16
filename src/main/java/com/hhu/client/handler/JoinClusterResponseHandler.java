@@ -19,7 +19,7 @@ public class JoinClusterResponseHandler extends SimpleChannelInboundHandler<Join
         String nodeId = joinClusterResponsePacket.getNodeId();
         String nodeName = joinClusterResponsePacket.getNodeName();
 
-        if (joinClusterResponsePacket.isSucess()) {
+        if (joinClusterResponsePacket.isSuccess()) {
             System.out.println("[" + nodeName + "] 加入集群成功，nodeId: " + nodeId);
             SessionUtil.bindSession(new Session(nodeId, nodeName), ctx.channel());
         } else {

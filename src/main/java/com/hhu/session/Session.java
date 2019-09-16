@@ -1,11 +1,5 @@
 package com.hhu.session;
 
-
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor
-@Data
 public class Session {
 
     private String nodeId;
@@ -13,6 +7,22 @@ public class Session {
 
     public Session(String nodeId, String nodeName) {
         this.nodeId = nodeId;
+        this.nodeName = nodeName;
+    }
+
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
+    }
+
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public void setNodeName(String nodeName) {
         this.nodeName = nodeName;
     }
 

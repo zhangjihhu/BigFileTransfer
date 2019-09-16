@@ -1,5 +1,6 @@
 package com.hhu.client.console;
 
+import com.hhu.client.console.impl.SendFileConsoleCommand;
 import com.hhu.util.SessionUtil;
 import io.netty.channel.Channel;
 
@@ -18,7 +19,7 @@ public class ConsoleCommandManager implements ConsoleCommand {
 
     @Override
     public void exec(Scanner scanner, Channel channel) {
-        String command = scanner.next();
+        String command = scanner.nextLine();
 
         if (!SessionUtil.hasLogin(channel)) {
             return;

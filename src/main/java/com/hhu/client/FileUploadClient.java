@@ -1,12 +1,11 @@
 package com.hhu.client;
 
 import com.hhu.client.console.ConsoleCommandManager;
-import com.hhu.client.console.JoinConsoleCommand;
+import com.hhu.client.console.impl.JoinClusterConsoleCommand;
 import com.hhu.client.handler.FileUploadClientHandler;
 import com.hhu.client.handler.JoinClusterResponseHandler;
 import com.hhu.codec.PacketDecoder;
 import com.hhu.codec.PacketEncoder;
-import com.hhu.protocol.Packet;
 import com.hhu.util.SessionUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -73,7 +72,7 @@ public class FileUploadClient {
     private static void startConsoleThread(Channel channel) {
 
         ConsoleCommandManager consoleCommandManager = new ConsoleCommandManager();
-        JoinConsoleCommand joinConsoleCommand = new JoinConsoleCommand();
+        JoinClusterConsoleCommand joinConsoleCommand = new JoinClusterConsoleCommand();
         Scanner sc = new Scanner(System.in);
 
         new Thread(() -> {

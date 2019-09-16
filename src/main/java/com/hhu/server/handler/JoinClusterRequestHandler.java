@@ -17,7 +17,7 @@ public class JoinClusterRequestHandler extends SimpleChannelInboundHandler<JoinC
     protected void channelRead0(ChannelHandlerContext ctx, JoinClusterRequestPacket joinClusterRequestPacket) throws Exception {
 
         JoinClusterResponsePacket joinClusterResponsePacket = new JoinClusterResponsePacket();
-        joinClusterResponsePacket.setSucess(true);
+        joinClusterResponsePacket.setSuccess(true);
         String nodeId = IDUtil.randomId();
         joinClusterResponsePacket.setNodeId(nodeId);
         joinClusterResponsePacket.setNodeName(joinClusterRequestPacket.getNodeName());

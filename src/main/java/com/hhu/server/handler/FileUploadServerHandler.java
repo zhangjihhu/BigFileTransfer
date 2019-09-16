@@ -1,7 +1,7 @@
 package com.hhu.server.handler;
 
 import com.hhu.protocol.FilePacket;
-import com.hhu.protocol.response.FileStartPacket;
+import com.hhu.util.FileUtil;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -12,30 +12,34 @@ import java.io.RandomAccessFile;
 @ChannelHandler.Sharable
 public class FileUploadServerHandler extends SimpleChannelInboundHandler<FilePacket> {
 
-    private int byteRead;
-    private volatile int start = 0;
-    private String file_dir = "F:\\Project\\java\\WordCount\\src\\main\\java\\com\\hhu\\server\\file";
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FilePacket filePacket) throws Exception {
-        System.out.println("=============== server channelRead0");
-        byte[] bytes = filePacket.getBytes();
-        byteRead = filePacket.getEndPos();
-        String md5 = filePacket.getFile_md5();
-        String path = file_dir + File.separator + md5;
+        String fileName = filePacket.getFile().getName();
+        String parentPath = FileUtil.getProjectParentPath();
+        String path = parentPath + "\\client\\";
+        File fileDir = new File(path);
+        if (!fileDir.exists()) {fileDir.mkdirs();}
+        path += fileName;
         File file = new File(path);
-        RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
-        randomAccessFile.seek(start);
-        randomAccessFile.write(bytes);
-        start += byteRead;
-        if (byteRead > 0) {
-            FileStartPacket fileStartPacket = new FileStartPacket();
-            fileStartPacket.setStart(start);
-            fileStartPacket.setFile(filePacket.getFile());
-            ctx.channel().writeAndFlush(fileStartPacket);
-        } else {
-            randomAccessFile.close();
+        if (!file.exists()) {
+            System.out.println("receive file: " + fileName);
         }
+
+        RandomAccessFile raf = new RandomAccessFile(file, "rw");
+        // 将内容写到对应的位置
+        byte[] bytes = filePacket.getBytes();
+        int byteRead = filePacket.getByteRead();
+        int start = filePacket.getStartPos();
+        raf.seek(start);
+        raf.write(bytes);
+        start = start + byteRead;
+        if (byteRead > 0) {
+            FilePacket packet = new FilePacket();
+            packet.setStartPos(start);
+            packet.setFile(filePacket.getFile());
+            ctx.writeAndFlush(packet);
+        }
+        raf.close();
     }
 
     @Override
@@ -43,4 +47,5 @@ public class FileUploadServerHandler extends SimpleChannelInboundHandler<FilePac
         cause.printStackTrace();
         ctx.close();
     }
+
 }

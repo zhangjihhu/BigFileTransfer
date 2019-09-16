@@ -1,26 +1,59 @@
 package com.hhu.protocol;
 
-import lombok.Data;
-
 import java.io.File;
-import java.io.Serializable;
 
-import static com.hhu.protocol.command.Command.FILE;
+import static com.hhu.protocol.command.Command.FILE_PACKET;
 
-
-@Data
 public class FilePacket extends Packet {
 
     private File file;
-    private String file_md5;
     private int startPos;
+    private int byteRead;
     private byte[] bytes;
-    private int endPos;
+
+    public FilePacket() {}
+
+    public FilePacket(File file, int startPos, int byteRead, byte[] bytes) {
+        this.file = file;
+        this.startPos = startPos;
+        this.byteRead = byteRead;
+        this.bytes = bytes;
+    }
 
     @Override
     public Byte getCommand() {
-        return FILE;
+        return FILE_PACKET;
     }
 
+    public File getFile() {
+        return file;
+    }
 
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public int getStartPos() {
+        return startPos;
+    }
+
+    public void setStartPos(int startPos) {
+        this.startPos = startPos;
+    }
+
+    public int getByteRead() {
+        return byteRead;
+    }
+
+    public void setByteRead(int byteRead) {
+        this.byteRead = byteRead;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
+    }
+
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
 }
