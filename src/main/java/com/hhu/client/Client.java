@@ -1,15 +1,15 @@
 package com.hhu.client;
 
 
+import com.hhu.client.console.SendFileConsole;
 import com.hhu.client.handler.MyClientHandler;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.stream.ChunkedWriteHandler;
+
+import java.util.Scanner;
 
 public class Client {
 
@@ -40,16 +40,20 @@ public class Client {
 		ChannelFuture future = bootstrap.connect(HOST, PORT).sync();
 		if (future.isSuccess()) {
 			System.out.println("连接服务器成功");
+			Channel channel = future.channel();
+			console(channel);
 		} else {
 			System.out.println("连接服务器失败");
 		}
 
 		future.channel().closeFuture().sync();
 
-
-
-
 	}
 
+	static void console(Channel channel) {
+		new Thread(() -> {
+			SendFileConsole.exec(channel);
+		}).start();
+	}
 
 }
