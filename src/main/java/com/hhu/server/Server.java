@@ -1,5 +1,10 @@
 package com.hhu.server;
 
+import com.hhu.codec.CodecHandler;
+import com.hhu.codec.DecodeHandler;
+import com.hhu.codec.EncodeHandler;
+import com.hhu.server.handler.FileContentByteBufHandler;
+import com.hhu.server.handler.FilePacketServerHandler;
 import com.hhu.server.handler.MyServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -21,14 +26,17 @@ public class Server {
 		bootstrap.group(boss, worker)
 				.channel(NioServerSocketChannel.class)
 				.option(ChannelOption.SO_BACKLOG, 1024)
-				.option(ChannelOption.SO_KEEPALIVE, true)
+				// .option(ChannelOption.SO_KEEPALIVE, true)
 				.option(ChannelOption.TCP_NODELAY, true)
 				.childHandler(new ChannelInitializer<NioSocketChannel>() {
 					@Override
 					protected void initChannel(NioSocketChannel channel) throws Exception {
 						ChannelPipeline pipeline = channel.pipeline();
-						pipeline.addLast("streamer", new ChunkedWriteHandler());
-						pipeline.addLast("handler", new MyServerHandler());
+						pipeline.addLast(new FileContentByteBufHandler());
+						pipeline.addLast(new DecodeHandler());
+						pipeline.addLast(new EncodeHandler());
+						pipeline.addLast(new FilePacketServerHandler());
+						// pipeline.addLast("handler", new MyServerHandler());
 					}
 				});
 

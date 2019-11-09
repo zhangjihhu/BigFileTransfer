@@ -15,10 +15,12 @@ public class MyClientHandler extends ChannelInboundHandlerAdapter {
 		System.out.println(msg);
 		ByteBuf byteBuf = (ByteBuf) msg;
 		FilePacket filePacket = (FilePacket) Codec.INSTANCE.decode(byteBuf);
-		System.out.println("prepared send: " + filePacket.getFile().getName());
+		File file = filePacket.getFile();
+		System.out.println("prepared send: " + file.getName());
 
 		Channel channel = ctx.channel();
-		channel.writeAndFlush(new ChunkedFile(new File("F:\\Project\\java\\BigFileTransfer\\pom.xml")));
+		channel.writeAndFlush(new ChunkedFile(filePacket.getFile()));
+		// channel.writeAndFlush(new DefaultFileRegion(file, 0, file.length()));
 
 	}
 }

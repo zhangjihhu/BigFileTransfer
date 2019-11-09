@@ -24,13 +24,13 @@ public class Codec {
 		packetTypeMap.put(FILE_PACKET, FilePacket.class);
 	}
 
-	public ByteBuf encode(ByteBuf byteBuf, Packet packet) {
+	public void encode(ByteBuf byteBuf, Packet packet) {
 		byte[] bytes = Serilizer.DEFAULT.serilize(packet);
 		byteBuf.writeInt(TYPE);
 		byteBuf.writeByte(packet.getCommand());
 		byteBuf.writeInt(bytes.length);
 		byteBuf.writeBytes(bytes);
-		return byteBuf;
+		// return byteBuf;
 	}
 
 	public Packet decode(ByteBuf byteBuf) {

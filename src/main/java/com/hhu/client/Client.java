@@ -2,7 +2,11 @@ package com.hhu.client;
 
 
 import com.hhu.client.console.SendFileConsole;
+import com.hhu.client.handler.FilePacketClientHandler;
 import com.hhu.client.handler.MyClientHandler;
+import com.hhu.codec.CodecHandler;
+import com.hhu.codec.DecodeHandler;
+import com.hhu.codec.EncodeHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -32,8 +36,11 @@ public class Client {
 					@Override
 					protected void initChannel(NioSocketChannel channel) throws Exception {
 						ChannelPipeline pipeline = channel.pipeline();
-						pipeline.addLast("streamer", new ChunkedWriteHandler());
-						pipeline.addLast(new MyClientHandler());
+						pipeline.addLast(new FilePacketClientHandler());
+						pipeline.addLast(new DecodeHandler());
+						pipeline.addLast(new EncodeHandler());
+						pipeline.addLast(new ChunkedWriteHandler());
+						// pipeline.addLast(new MyClientHandler());
 					}
 				});
 
@@ -47,12 +54,13 @@ public class Client {
 		}
 
 		future.channel().closeFuture().sync();
-
 	}
 
-	static void console(Channel channel) {
+	private static void console(Channel channel) {
 		new Thread(() -> {
-			SendFileConsole.exec(channel);
+			while (!Thread.interrupted()) {
+				SendFileConsole.exec(channel);
+			}
 		}).start();
 	}
 
