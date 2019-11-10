@@ -1,6 +1,7 @@
 package com.hhu.protocol;
 
 
+import javax.swing.*;
 import java.io.File;
 
 import static com.hhu.protocol.command.Command.FILE_PACKET;
@@ -8,7 +9,8 @@ import static com.hhu.protocol.command.Command.FILE_PACKET;
 public class FilePacket extends Packet {
 
 	File file;
-	boolean complete;
+
+	int ACK;
 
 	@Override
 	public Byte getCommand() {
@@ -22,9 +24,9 @@ public class FilePacket extends Packet {
 		this.file = file;
 	}
 
-	public FilePacket(File file, boolean complete) {
+	public FilePacket(File file, int ACK) {
 		this.file = file;
-		this.complete = complete;
+		this.ACK = ACK;
 	}
 
 	public File getFile() {
@@ -35,11 +37,11 @@ public class FilePacket extends Packet {
 		this.file = file;
 	}
 
-	public boolean isComplete() {
-		return complete;
+	public int getACK() {
+		return ACK;
 	}
 
-	public void setComplete(boolean complete) {
-		this.complete = complete;
+	public void setACK(int ACK) {
+		this.ACK = ACK;
 	}
 }

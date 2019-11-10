@@ -2,6 +2,8 @@ package com.hhu.codec;
 
 import com.hhu.protocol.FilePacket;
 import com.hhu.protocol.Packet;
+import com.hhu.protocol.request.LoginPacket;
+import com.hhu.protocol.response.LoginResponsePacket;
 import com.hhu.protocol.serilizer.Serilizer;
 import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import io.netty.buffer.ByteBuf;
@@ -9,7 +11,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.hhu.protocol.command.Command.FILE_PACKET;
+import static com.hhu.protocol.command.Command.*;
 
 public class Codec {
 
@@ -22,6 +24,8 @@ public class Codec {
 	private Codec() {
 		packetTypeMap = new HashMap<>();
 		packetTypeMap.put(FILE_PACKET, FilePacket.class);
+		packetTypeMap.put(LOGIN_PACKET_REQUEST, LoginPacket.class);
+		packetTypeMap.put(LOGIN_PACKET_RESPONSE, LoginResponsePacket.class);
 	}
 
 	public void encode(ByteBuf byteBuf, Packet packet) {

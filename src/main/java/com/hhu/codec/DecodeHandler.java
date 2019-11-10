@@ -12,7 +12,6 @@ import java.util.List;
 public class DecodeHandler extends ByteToMessageDecoder {
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) throws Exception {
-		System.out.println("decode: " + byteBuf);
 		list.add(Codec.INSTANCE.decode(byteBuf));
 	}
 }

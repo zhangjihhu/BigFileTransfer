@@ -8,7 +8,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class FileContentByteBufHandler extends ChannelInboundHandlerAdapter {
+public class FileReceiveServerHandler extends ChannelInboundHandlerAdapter {
 
 	static FileOutputStream outputStream;
 
@@ -19,28 +19,27 @@ public class FileContentByteBufHandler extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		ByteBuf byteBuf = (ByteBuf) msg;
-		readLength += byteBuf.readableBytes();
-		System.out.println(msg + " " + readLength);
 		int type = byteBuf.getInt(0);
 		if (type != Codec.TYPE) {
-			byte[] bytes = new byte[byteBuf.readableBytes()];
-			byteBuf.readBytes(bytes);
-			outputStream.write(bytes);
-			byteBuf.release();
+			readLength += byteBuf.readableBytes();
+			writeToFile(byteBuf);
 			sendComplete(readLength);
 		} else {
 			super.channelRead(ctx, msg);
 		}
 	}
 
-	private void sendComplete(long readLength) {
+	private void writeToFile(ByteBuf byteBuf) throws IOException {
+		byte[] bytes = new byte[byteBuf.readableBytes()];
+		byteBuf.readBytes(bytes);
+		outputStream.write(bytes);
+		byteBuf.release();
+	}
+
+	private void sendComplete(long readLength) throws IOException {
 		if (readLength >= fileLength) {
-			try {
-				System.out.println("文件接收完成...");
-				outputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			System.out.println("文件接收完成...");
+			outputStream.close();
 		}
 	}
 

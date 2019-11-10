@@ -1,8 +1,6 @@
 package com.hhu.client.console;
 
-import com.hhu.codec.Codec;
 import com.hhu.protocol.FilePacket;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 
 import java.io.File;
@@ -12,14 +10,11 @@ public class SendFileConsole {
 
 	public static void exec(Channel channel) {
 		Scanner sc = new Scanner(System.in);
-		System.out.println("please input the file path: ");
+		System.out.println("请输入文件路径：");
 		String path = sc.nextLine();
 		File file = new File(path);
 		FilePacket filePacket = new FilePacket(file);
-		ByteBuf byteBuf = channel.alloc().ioBuffer();
-		Codec.INSTANCE.encode(byteBuf, filePacket);
-		channel.writeAndFlush(byteBuf);
-		// channel.writeAndFlush(filePacket);
+		channel.writeAndFlush(filePacket);
 
 	}
 
