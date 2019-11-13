@@ -10,7 +10,7 @@ flush()方法，从发送队列取出数据（如果是ChunkedInput类型的数�
 
 |->|ByteBuf|->|inbound|->|FileReceiveHandler|->|FileSendHandler|->|FilePacketHandler|
 |----|----|----|----|----|----|----|----|----|----|
-| | | | | |如果是文件内容直接读取| |使用FileRegion直接发送文件内容| |获取接收文件的属性|
+|  |  |  |  |  |如果是文件内容直接读取| |使用FileRegion直接发送文件内容|  |获取接收文件的属性|
 
 >该项目操作流程：
 1. 开启服务端(Server)
